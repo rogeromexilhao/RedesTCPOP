@@ -1,34 +1,54 @@
+#!/usr/bin/python3
 import socket
+import customtkinter as ctk
+import time 
 
-# Configurações do servidor
-host = '127.0.0.1'  # Endereço IP do servidor
-port = 12345       # Porta em que o servidor irá escutar
+app = ctk.CTk()
+app.title('Main')
+# Endereco IP do Servidor, '' = significa que ouvira em todas as interfaces
 
-# Cria um objeto socket TCP
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+largura = 400
+altura = 300
+app.geometry("%dx%d" % (largura, altura))
 
-# Liga o socket ao endereço IP e porta
-sock.bind((host, port))
+app.update_idletasks()
+largura_tela = app.winfo_screenwidth()
+altura_tela = app.winfo_screenheight()
+pos_x = (largura_tela // 2) - (largura // 2)
+pos_y = (altura_tela // 2) - (altura // 2)
+app.geometry("+%d+%d" % (pos_x, pos_y))
 
-# Define o limite de conexões pendentes
-sock.listen(1)
+def executa():
+    MEU_IP=''
+    MINHA_PORTA = 8000  
+    # Porta que o Servidor vai ouvir 
 
-print('Servidor aguardando conexões...')
+    tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # socket.AF_INET = INET (exemplo IPv4)sockets, #socket.SOCK_STREAM=usaremos TCP
 
-# Aguarda a conexão do cliente
-cliente_sock, cliente_endereco = sock.accept()
-print('Cliente conectado:', cliente_endereco)
+    #x = 1
+    testa_mensagem = ''
+    MEU_SERVIDOR = (MEU_IP, MINHA_PORTA) 
+    tcp.bind(MEU_SERVIDOR)
+    # faz o bind do ip e a porta para que possa comecar a ouvir
 
-# Recebe dados do cliente
-dados = cliente_sock.recv(1024).decode()
-print('Mensagem recebida:', dados)
+    tcp.listen(1) 
+    #comeca a ouvir
 
-# Envia resposta para o cliente
-resposta = 'Olá, cliente!'
-cliente_sock.sendall(resposta.encode())
+    conexao, docliente =tcp.accept()
+    print ("o cliente = ", docliente, " se conectou")
+    #pega o ip do cliente que conectou
+    while 1:
+        Mensagem_Recebida = conexao.recv(1024)
+        #Mensagem recebida do cliente 
+        if testa_mensagem != Mensagem_Recebida:  
+    #aqui verifica se exite mensagem nova  
+            print ("Recebi = ",Mensagem_Recebida," , Do cliente", docliente)
+        conexao.close()
 
-# Fecha a conexão com o cliente
-cliente_sock.close()
 
-# Fecha o socket do servidor
-sock.close()
+time.sleep(3)
+executa()
+app.mainloop()
+
+#fim do socket

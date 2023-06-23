@@ -1,22 +1,26 @@
+#!/usr/bin/python3
 import socket
 
-# Configurações do servidor
-host = '127.0.0.1'  # Endereço IP do servidor
-port = 12345       # Porta em que o servidor está escutando
+IP_Servidor = '192.168.15.32'             
+# Endereco IP do Servidor
 
-# Cria um objeto socket TCP
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+PORTA_Servidor = 8000
+# Porta em que o servidor estara ouvindo
 
-# Estabelece a conexão com o servidor
-sock.connect((host, port))
+tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# socket.AF_INET = INET (exemplo IPv4)sockets, #socket.SOCK_STREAM=usaremos TCP
 
-# Envia dados para o servidor
-mensagem = 'Olá, servidor!'
-sock.sendall(mensagem.encode())
+DESTINO = (IP_Servidor, PORTA_Servidor) 
+#destino(IP + porta)
 
-# Recebe a resposta do servidor
-dados = sock.recv(1024).decode()
-print('Resposta do servidor:', dados)
-
-# Fecha a conexão
-sock.close()
+tcp.connect(DESTINO) 
+# inicia a conexao TCP
+while 1:
+ Mensagem = input()   
+ # Mensagem recebera dados do teclado
+ 
+ tcp.send(bytes(Mensagem,"utf8"))
+ # enviar a mensgem para o destinoda conexao(IP + porta)   
+ #bytes(Mensagem,"utf8") = converte tipo  str para byte    
+tcp.close()
+# finalizar o socket
