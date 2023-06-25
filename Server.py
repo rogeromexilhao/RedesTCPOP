@@ -1,54 +1,53 @@
 #!/usr/bin/python3
 import socket
 import customtkinter as ctk
-import time 
+import time
+import threading
 
 app = ctk.CTk()
 app.title('Main')
-# Endereco IP do Servidor, '' = significa que ouvira em todas as interfaces
-
 largura = 400
 altura = 300
 app.geometry("%dx%d" % (largura, altura))
-
-app.update_idletasks()
 largura_tela = app.winfo_screenwidth()
 altura_tela = app.winfo_screenheight()
 pos_x = (largura_tela // 2) - (largura // 2)
 pos_y = (altura_tela // 2) - (altura // 2)
 app.geometry("+%d+%d" % (pos_x, pos_y))
 
+ctk.CTkLabel(app,text='Esperando Conexões').pack()
+
 def executa():
     MEU_IP=''
-    MINHA_PORTA = 8000  
-    # Porta que o Servidor vai ouvir 
-
+    MINHA_PORTA = 8000
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # socket.AF_INET = INET (exemplo IPv4)sockets, #socket.SOCK_STREAM=usaremos TCP
-
-    #x = 1
-    testa_mensagem = ''
-    MEU_SERVIDOR = (MEU_IP, MINHA_PORTA) 
+    MEU_SERVIDOR = (MEU_IP, MINHA_PORTA)
     tcp.bind(MEU_SERVIDOR)
-    # faz o bind do ip e a porta para que possa comecar a ouvir
+    tcp.listen(1)
 
-    tcp.listen(1) 
-    #comeca a ouvir
-
-    conexao, docliente =tcp.accept()
-    print ("o cliente = ", docliente, " se conectou")
-    #pega o ip do cliente que conectou
-    while 1:
-        Mensagem_Recebida = conexao.recv(1024)
-        #Mensagem recebida do cliente 
-        if testa_mensagem != Mensagem_Recebida:  
-    #aqui verifica se exite mensagem nova  
-            print ("Recebi = ",Mensagem_Recebida," , Do cliente", docliente)
-        conexao.close()
+    conexao, docliente = tcp.accept()
+    print("O cliente =", docliente, "se conectou")
+    ctk.CTkLabel(app,text=f"O cliente = {docliente} se conectou").pack()
 
 
-time.sleep(3)
-executa()
+    while True:
+        mensagem_recebida = conexao.recv(1024)
+        if not mensagem_recebida:
+            break
+        print("Recebi =", mensagem_recebida, ", Do cliente", docliente)
+        print(mensagem_recebida)
+        ctk.CTkLabel(app,text=f"Recebi = {mensagem_recebida.decode()}, Do cliente {docliente}").pack()
+
+
+    conexao.close()
+
+def start_server():
+    time.sleep(3)
+    executa()
+    app.mainloop()
+
+thread = threading.Thread(target=start_server)
+thread.daemon = True
+thread.start()
+
 app.mainloop()
-
-#fim do socket
