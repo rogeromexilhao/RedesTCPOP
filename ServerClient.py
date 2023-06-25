@@ -1,11 +1,12 @@
 import socket
+from tkinter import *
 import customtkinter as ctk
 import threading
 
 app = ctk.CTk()
 app.title('Main')
-largura = 400
-altura = 300
+largura = 600
+altura = 600
 app.geometry("%dx%d" % (largura, altura))
 largura_tela = app.winfo_screenwidth()
 altura_tela = app.winfo_screenheight()
@@ -15,29 +16,44 @@ app.geometry("+%d+%d" % (pos_x, pos_y))
 
 def executa():
     try:
-    #choice = input("Host = (1) ou Client = (2)")
-        #if choice == '1':
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(('192.168.15.32', 5000))
         server.listen()
             
+        aguardando = ctk.CTkLabel(app,text='Esperando Conexões...')
+        aguardando.pack()
         client, doclient = server.accept()
-        ctk.CTkLabel(app,text='Esperando Conexões 1').pack()
-        ctk.CTkLabel(app,text=f"O cliente = {doclient} se conectou").pack()
+        aguardando.destroy()
+        ctk.CTkLabel(app,text=f"O cliente {doclient} se conectou").pack()
+        
+        chat = ctk.CTkFrame(app,width=300)
+        chat.pack()
     except:
-        ctk.CTkLabel(app,text='Esperando Conexões 2').pack()
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(('192.168.15.32', 5000))
+        ctk.CTkLabel(app,text="Conectado ao ('192.168.15.32', 5000)").pack()
+        
+        chat = ctk.CTkFrame(app,width=300, height=200)
+        chat.pack()
 
-    def sending_mensages(c):
+    def sending_mensages(c):        
+        messagectk = ctk.CTkEntry(app,placeholder_text='Digite sua mensagem',width=200)
+        messagectk.pack()
+        
         while True:
-                message = input("")
-                c.send(message.encode())
-                print("You: " + message)
+            def key_press(event):
+                if event.keycode == 13:
+                    ctk.CTkLabel(chat,text=f"Você: {messagectk.get()}").pack()
+                    message = messagectk.get()
+                    #print(message)
+                    messagectk.delete(0, END)
+                    c.send(message.encode())
+            app.bind('<Key>',key_press)
+            #print("You: " + message)
 
     def receiving_mensages(c):
         while True:
-                print("Partner: " + c.recv(1024).decode())
+            ctk.CTkLabel(chat,text=f"USER: {c.recv(1024).decode()}").pack()
                 
 
     threading.Thread(target=sending_mensages, args=(client,)).start()
@@ -46,7 +62,6 @@ def executa():
 
 def start_server():
     executa()
-    app.mainloop()
 
 thread = threading.Thread(target=start_server)
 thread.daemon = True
