@@ -22,8 +22,11 @@ def executa():
             
         aguardando = ctk.CTkLabel(app,text='Esperando Conexões...')
         aguardando.pack()
+        
         client, doclient = server.accept()
+        
         aguardando.destroy()
+        
         ctk.CTkLabel(app,text=f"O cliente {doclient} se conectou").pack()
         
         chat = ctk.CTkFrame(app,width=300)
@@ -31,12 +34,13 @@ def executa():
     except:
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(('192.168.15.32', 5000))
+        
         ctk.CTkLabel(app,text="Conectado ao ('192.168.15.32', 5000)").pack()
         
         chat = ctk.CTkFrame(app,width=300, height=200)
         chat.pack()
 
-    def sending_mensages(c):        
+    def sending(t):        
         messagectk = ctk.CTkEntry(app,placeholder_text='Digite sua mensagem',width=200)
         messagectk.pack()
         
@@ -45,19 +49,17 @@ def executa():
                 if event.keycode == 13:
                     ctk.CTkLabel(chat,text=f"Você: {messagectk.get()}").pack()
                     message = messagectk.get()
-                    #print(message)
                     messagectk.delete(0, END)
-                    c.send(message.encode())
+                    t.send(message.encode())
             app.bind('<Key>',key_press)
-            #print("You: " + message)
 
-    def receiving_mensages(c):
+    def receiving(t):
         while True:
-            ctk.CTkLabel(chat,text=f"USER: {c.recv(1024).decode()}").pack()
+            ctk.CTkLabel(chat,text=f"USER: {t.recv(1024).decode()}").pack()
                 
 
-    threading.Thread(target=sending_mensages, args=(client,)).start()
-    threading.Thread(target=receiving_mensages, args=(client,)).start()
+    threading.Thread(target=sending, args=(client,)).start()
+    threading.Thread(target=receiving, args=(client,)).start()
 
 
 def start_server():
