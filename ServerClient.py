@@ -17,7 +17,7 @@ app.geometry("+%d+%d" % (pos_x, pos_y))
 def executa():
     try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind(('192.168.15.32', 5000))
+        server.bind(('172.31.14.220', 5000))
         server.listen()
             
         aguardando = ctk.CTkLabel(app,text='Esperando Conexões...')
@@ -29,15 +29,15 @@ def executa():
         
         ctk.CTkLabel(app,text=f"O cliente {doclient} se conectou").pack()
         
-        chat = ctk.CTkFrame(app,width=300)
+        chat = ctk.CTkScrollableFrame(app,width=300, height=500)
         chat.pack()
     except:
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect(('192.168.15.32', 5000))
+        client.connect(('172.31.14.220', 5000))
         
-        ctk.CTkLabel(app,text="Conectado ao ('192.168.15.32', 5000)").pack()
+        ctk.CTkLabel(app,text="Usuário conectado").pack()
         
-        chat = ctk.CTkFrame(app,width=300, height=200)
+        chat = ctk.CTkScrollableFrame(app,width=300, height=500)
         chat.pack()
 
     def sending(t):        
@@ -47,7 +47,7 @@ def executa():
         while True:
             def key_press(event):
                 if event.keycode == 13:
-                    ctk.CTkLabel(chat,text=f"Você: {messagectk.get()}").pack()
+                    ctk.CTkLabel(chat,text=f"Você: {messagectk.get()}",fg_color='green',corner_radius=3,padx=(5),pady=(3)).pack()
                     message = messagectk.get()
                     messagectk.delete(0, END)
                     t.send(message.encode())
@@ -55,7 +55,7 @@ def executa():
 
     def receiving(t):
         while True:
-            ctk.CTkLabel(chat,text=f"USER: {t.recv(1024).decode()}").pack()
+            ctk.CTkLabel(chat,text=f"USER: {t.recv(1024).decode()}",corner_radius=3,padx=(5),pady=(3)).pack()
                 
 
     threading.Thread(target=sending, args=(client,)).start()
